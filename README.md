@@ -2,6 +2,17 @@
 
 A sleek, minimal Pomodoro timer to boost your productivity. Built with vanilla JavaScript (ES Modules) and a warm orange design system with dark/light mode.
 
+## Documentation
+
+Full product and technical documentation lives in [`docs/`](./docs/):
+
+- [`docs/PRD.md`](./docs/PRD.md) — vision, goals, target users, scope, roadmap
+- [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — tech stack, module boundaries, data model
+- [`docs/FEATURES.md`](./docs/FEATURES.md) — detailed feature specifications
+- [`docs/DECISIONS.md`](./docs/DECISIONS.md) — key decisions, rationale, and open questions
+
+Start there for full context before making significant changes.
+
 ## Features
 
 - **Pomodoro Timer** — Focus (25m), Short Break (5m), Long Break (15m) with automatic cycling
