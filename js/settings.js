@@ -14,6 +14,7 @@ const els = {
     inputLong: null,
     inputSessions: null,
     toggleSound: null,
+    toggleNotifications: null,
     btnSave: null,
 };
 
@@ -29,11 +30,36 @@ export function init(opts = {}) {
     els.inputLong = document.getElementById('settingLong');
     els.inputSessions = document.getElementById('settingSessions');
     els.toggleSound = document.getElementById('settingSound');
+    els.toggleNotifications = document.getElementById('settingNotifications');
     els.btnSave = document.getElementById('btnSaveSettings');
 
     if (els.btnOpen) els.btnOpen.addEventListener('click', open);
     if (els.btnClose) els.btnClose.addEventListener('click', close);
     if (els.btnSave) els.btnSave.addEventListener('click', save);
+
+    if (els.toggleNotifications) {
+        els.toggleNotifications.addEventListener('change', () => {
+            if (els.toggleNotifications.checked) {
+                if (!('Notification' in window)) {
+                    alert('This browser does not support desktop notifications.');
+                    els.toggleNotifications.checked = false;
+                    return;
+                }
+                if (Notification.permission === 'denied') {
+                    alert('Notification permission has been denied. Please enable it in browser settings.');
+                    els.toggleNotifications.checked = false;
+                    return;
+                }
+                if (Notification.permission !== 'granted') {
+                    Notification.requestPermission().then(permission => {
+                        if (permission !== 'granted') {
+                            els.toggleNotifications.checked = false;
+                        }
+                    });
+                }
+            }
+        });
+    }
 
     if (els.overlay) {
         els.overlay.addEventListener('click', (e) => {
@@ -66,6 +92,7 @@ export function save() {
         longDuration: parseInt(els.inputLong.value, 10) || DEFAULT_SETTINGS.longDuration,
         sessionsBeforeLong: parseInt(els.inputSessions.value, 10) || DEFAULT_SETTINGS.sessionsBeforeLong,
         soundEnabled: els.toggleSound.checked,
+        notificationsEnabled: els.toggleNotifications ? els.toggleNotifications.checked : false,
     };
 
     saveSettings(settings);
@@ -83,4 +110,7 @@ function loadForm() {
     els.inputSessions.value = settings.sessionsBeforeLong;
     els.toggleSound.checked = settings.soundEnabled;
     setSoundEnabled(settings.soundEnabled);
+    if (els.toggleNotifications) {
+        els.toggleNotifications.checked = settings.notificationsEnabled || false;
+    }
 }

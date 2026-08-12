@@ -1,8 +1,8 @@
-import { saveData, loadData, loadSettings } from './storage.js';
+import { saveData, loadData, loadSettings, saveSettings, saveTheme } from './storage.js';
 import { setSoundEnabled, playNotification } from './sounds.js';
 import { init as initTheme, toggle as toggleTheme, getTheme } from './theme.js';
 import { init as initTimer, start, pause, reset, skip, switchMode, getDisplayState, restoreState as restoreTimerState, loadSettingsIntoState } from './timer.js';
-import { init as initTasks, restoreState as restoreTasksState, getState as getTasksState, add as addTask, toggle as toggleTask, remove as removeTask, setActive as setActiveTask, clearCompleted, incrementPomodoro, getFiltered, setFilter, getStats, getActiveTask } from './tasks.js';
+import { init as initTasks, restoreState as restoreTasksState, getState as getTasksState, add as addTask, toggle as toggleTask, remove as removeTask, setActive as setActiveTask, clearCompleted, incrementPomodoro, getFiltered, setFilter, getStats, getActiveTask, undo as undoTask } from './tasks.js';
 import { init as initSettings, open as openSettings } from './settings.js';
 
 // DOM refs
@@ -40,6 +40,9 @@ const dom = {
     btnCloseDrawer: $('#btnCloseDrawer'),
     taskBadge: $('#taskBadge'),
     taskDrawerCount: $('#taskDrawerCount'),
+    btnExportData: $('#btnExportData'),
+    btnImportData: $('#btnImportData'),
+    importFile: $('#importFile'),
 };
 
 // ─── Init ──────────────────────────────────────
@@ -225,6 +228,125 @@ function escapeHtml(str) {
     return d.innerHTML;
 }
 
+// ─── Toast System ──────────────────────────────
+function showToast(message, actionLabel, actionCallback) {
+    const container = $('#toastContainer');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+
+    const text = document.createElement('span');
+    text.textContent = message;
+    toast.appendChild(text);
+
+    if (actionLabel && actionCallback) {
+        const btn = document.createElement('button');
+        btn.className = 'toast-action';
+        btn.textContent = actionLabel;
+        btn.addEventListener('click', () => {
+            actionCallback();
+            toast.remove();
+        });
+        toast.appendChild(btn);
+    }
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('fade-out');
+        setTimeout(() => toast.remove(), 250);
+    }, 5000);
+}
+
+// ─── Desktop Notifications ─────────────────────
+function showDesktopNotification(d) {
+    const settings = loadSettings();
+    if (!settings.notificationsEnabled) return;
+    if (Notification.permission !== 'granted') return;
+
+    let title = '';
+    let body = '';
+
+    if (d.mode === 'focus') {
+        title = 'Focus Session Completed!';
+        const isLong = d.sessionsCompleted % settings.sessionsBeforeLong === 0;
+        body = isLong
+            ? `Great job! Take a longer ${settings.longDuration}-minute break.`
+            : `Good work! Take a ${settings.shortDuration}-minute break.`;
+    } else {
+        title = 'Break Completed!';
+        body = `Time to start your focus block of ${settings.focusDuration} minutes.`;
+    }
+
+    try {
+        const n = new Notification(title, { body });
+        n.onclick = () => {
+            window.focus();
+            n.close();
+        };
+    } catch (err) {
+        console.error('Failed to show notification', err);
+    }
+}
+
+// ─── Import & Export ───────────────────────────
+function exportData() {
+    const tasksState = getTasksState();
+    const timerDisplay = getDisplayState();
+    const settings = loadSettings();
+    const theme = getTheme();
+
+    const backup = {
+        version: 1,
+        timestamp: Date.now(),
+        data: {
+            sessionsCompleted: timerDisplay.sessionsCompleted,
+            totalFocusMinutes: timerDisplay.totalFocusMinutes,
+            tasks: tasksState.tasks,
+            activeTaskId: tasksState.activeTaskId
+        },
+        settings: settings,
+        theme: theme
+    };
+
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `focusflow-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function importData(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const backup = JSON.parse(e.target.result);
+            if (!backup || !backup.data || !backup.settings) {
+                throw new Error('Invalid backup file format.');
+            }
+
+            saveData(backup.data);
+            saveSettings(backup.settings);
+            if (backup.theme) {
+                saveTheme(backup.theme);
+            }
+
+            alert('Backup imported successfully! FocusFlow will reload to apply changes.');
+            window.location.reload();
+        } catch (err) {
+            alert('Failed to import backup: ' + err.message);
+        }
+    };
+    reader.readAsText(file);
+}
+
 // ─── Event Handlers ────────────────────────────
 function onSessionComplete(d) {
     dom.timerRing.classList.add('celebrate');
@@ -233,6 +355,8 @@ function onSessionComplete(d) {
     if (d.mode === 'focus') {
         incrementPomodoro();
     }
+
+    showDesktopNotification(d);
 
     renderAll();
     persist();
@@ -298,16 +422,37 @@ function bindEvents() {
         if (!action) return;
 
         switch (action.dataset.action) {
-            case 'toggle':
+            case 'toggle': {
+                const task = getTasksState().tasks.find(t => t.id === id);
+                const wasCompleted = task ? task.completed : false;
                 toggleTask(id);
                 renderTasks();
                 persist();
+
+                const msg = wasCompleted ? 'Task marked active' : 'Task completed';
+                showToast(msg, 'Undo', () => {
+                    if (undoTask()) {
+                        renderTasks();
+                        persist();
+                    }
+                });
                 break;
-            case 'delete':
+            }
+            case 'delete': {
+                const task = getTasksState().tasks.find(t => t.id === id);
+                const taskText = task ? task.text : 'Task';
                 removeTask(id);
                 renderTasks();
                 persist();
+
+                showToast(`Deleted "${taskText}"`, 'Undo', () => {
+                    if (undoTask()) {
+                        renderTasks();
+                        persist();
+                    }
+                });
                 break;
+            }
             case 'activate':
                 setActiveTask(id);
                 renderTasks();
@@ -327,10 +472,36 @@ function bindEvents() {
 
     // Clear completed
     dom.btnClearCompleted.addEventListener('click', () => {
-        clearCompleted();
-        renderTasks();
-        persist();
+        const completedCount = getTasksState().tasks.filter(t => t.completed).length;
+        if (completedCount > 0) {
+            clearCompleted();
+            renderTasks();
+            persist();
+
+            showToast(`Cleared ${completedCount} completed tasks`, 'Undo', () => {
+                if (undoTask()) {
+                    renderTasks();
+                    persist();
+                }
+            });
+        }
     });
+
+    // Backup & Restore
+    if (dom.btnExportData) {
+        dom.btnExportData.addEventListener('click', exportData);
+    }
+    if (dom.btnImportData && dom.importFile) {
+        dom.btnImportData.addEventListener('click', () => {
+            dom.importFile.click();
+        });
+        dom.importFile.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                importData(e.target.files[0]);
+                dom.importFile.value = '';
+            }
+        });
+    }
 
     // Theme toggle
     document.getElementById('btnToggleTheme').addEventListener('click', toggleTheme);

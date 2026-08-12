@@ -8,6 +8,7 @@ export const DEFAULT_SETTINGS = {
     longDuration: 15,
     sessionsBeforeLong: 4,
     soundEnabled: true,
+    notificationsEnabled: false,
 };
 
 export function saveData(data) {

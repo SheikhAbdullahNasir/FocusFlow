@@ -2,6 +2,7 @@ let tasks = [];
 let activeTaskId = null;
 let filter = 'all';
 let callbacks = { onChange: null };
+let lastAction = null;
 
 export function init(opts = {}) {
     if (opts.onChange) callbacks.onChange = opts.onChange;
@@ -42,6 +43,13 @@ export function add(text) {
 export function toggle(id) {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
+
+    lastAction = {
+        type: 'toggle',
+        taskId: id,
+        wasCompleted: task.completed
+    };
+
     task.completed = !task.completed;
     if (task.completed && activeTaskId === id) {
         const next = tasks.find(t => !t.completed && t.id !== id);
@@ -51,7 +59,17 @@ export function toggle(id) {
 }
 
 export function remove(id) {
-    tasks = tasks.filter(t => t.id !== id);
+    const index = tasks.findIndex(t => t.id === id);
+    if (index === -1) return;
+
+    lastAction = {
+        type: 'delete',
+        task: tasks[index],
+        index: index,
+        wasActive: activeTaskId === id
+    };
+
+    tasks.splice(index, 1);
     if (activeTaskId === id) {
         const next = tasks.find(t => !t.completed);
         activeTaskId = next ? next.id : null;
@@ -68,12 +86,53 @@ export function setActive(id) {
 }
 
 export function clearCompleted() {
+    const completedTasks = tasks.filter(t => t.completed);
+    if (completedTasks.length === 0) return;
+
+    lastAction = {
+        type: 'clear',
+        tasksBeforeClear: [...tasks],
+        activeTaskIdBeforeClear: activeTaskId
+    };
+
     tasks = tasks.filter(t => !t.completed);
     if (activeTaskId && !tasks.find(t => t.id === activeTaskId)) {
         const next = tasks.find(t => !t.completed);
         activeTaskId = next ? next.id : null;
     }
     notify();
+}
+
+export function undo() {
+    if (!lastAction) return false;
+
+    switch (lastAction.type) {
+        case 'toggle': {
+            const task = tasks.find(t => t.id === lastAction.taskId);
+            if (task) {
+                task.completed = lastAction.wasCompleted;
+                if (!lastAction.wasCompleted && !activeTaskId) {
+                    activeTaskId = task.id;
+                }
+            }
+            break;
+        }
+        case 'delete': {
+            tasks.splice(lastAction.index, 0, lastAction.task);
+            if (lastAction.wasActive) {
+                activeTaskId = lastAction.task.id;
+            }
+            break;
+        }
+        case 'clear': {
+            tasks = lastAction.tasksBeforeClear;
+            activeTaskId = lastAction.activeTaskIdBeforeClear;
+            break;
+        }
+    }
+    lastAction = null;
+    notify();
+    return true;
 }
 
 export function incrementPomodoro() {

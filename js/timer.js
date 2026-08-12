@@ -13,6 +13,8 @@ let state = {
     sessionsCompleted: 0,
     totalFocusMinutes: 0,
     settings: loadSettings(),
+    startedAt: null,
+    timeLeftAtStart: null,
 };
 
 let callbacks = {
@@ -50,15 +52,19 @@ function calcDuration(mode, settings) {
 export function start() {
     if (state.isRunning) return;
     state.isRunning = true;
+    state.startedAt = Date.now();
+    state.timeLeftAtStart = state.timeLeft;
 
     state.intervalId = setInterval(() => {
-        state.timeLeft--;
+        const elapsed = Math.floor((Date.now() - state.startedAt) / 1000);
+        state.timeLeft = Math.max(0, state.timeLeftAtStart - elapsed);
+
         if (state.timeLeft <= 0) {
             state.timeLeft = 0;
             complete();
         }
         if (callbacks.onTick) callbacks.onTick(getDisplayState());
-    }, 1000);
+    }, 200);
 
     if (callbacks.onTick) callbacks.onTick(getDisplayState());
 }
@@ -69,6 +75,8 @@ export function pause() {
         clearInterval(state.intervalId);
         state.intervalId = null;
     }
+    state.startedAt = null;
+    state.timeLeftAtStart = null;
     if (callbacks.onTick) callbacks.onTick(getDisplayState());
 }
 

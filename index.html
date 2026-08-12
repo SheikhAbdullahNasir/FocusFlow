@@ -231,6 +231,22 @@
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
+                <div class="settings-row">
+                    <span class="settings-label">Desktop notifications</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="settingNotifications"/>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-group-title">Backup & Restore</div>
+                <div class="settings-row" style="border-top: none; gap: 0.75rem; justify-content: flex-start; padding-top: 0.25rem;">
+                    <button class="btn-backup" id="btnExportData">Export JSON</button>
+                    <button class="btn-backup" id="btnImportData">Import JSON</button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" />
+                </div>
             </div>
 
             <div class="settings-group">
@@ -253,6 +269,8 @@
     <audio id="alarmSound" preload="auto">
         <source src="data:audio/wav;base64,UklGRiQDAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQADAAB/f39/f39/f39/f39/f39/f3+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/v7+/v7+/v7+/v7+/v79/f38/Pv7+vr5+fj49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf39/f39/f39/f39/f39/f3+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/v7+/v7+/v7+/v7+/v79/f38/Pv7+vr5+fj49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf39/f39/f39/f39/f39/fw==" type="audio/wav"/>
     </audio>
+
+    <div id="toastContainer" class="toast-container"></div>
 
     <script type="module" src="js/app.js"></script>
 </body>
