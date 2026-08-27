@@ -125,7 +125,7 @@ body {
     border-bottom: 1px solid var(--border);
     background: var(--bg-secondary);
     flex-shrink: 0;
-    transition: background 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+    transition: background 0.3s var(--ease-out), border-color 0.3s var(--ease-out), transform 0.4s var(--ease-out), opacity 0.4s var(--ease-out);
 }
 
 .logo {
@@ -492,7 +492,7 @@ body {
     border-top: 1px solid var(--border);
     background: var(--bg-secondary);
     flex-shrink: 0;
-    transition: background 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+    transition: background 0.3s var(--ease-out), border-color 0.3s var(--ease-out), transform 0.4s var(--ease-out), opacity 0.4s var(--ease-out);
 }
 
 .stat-item {
@@ -1302,4 +1302,166 @@ body {
     .toast {
         justify-content: space-between;
     }
+}
+
+/* --- Document Picture-in-Picture window style --- */
+body.pip-body {
+    background: #0a0a0f !important;
+    color: #f5f5f7;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+body.pip-body[data-theme="light"] {
+    background: #ffffff !important;
+    color: #1a1a2e;
+}
+
+.pip-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+.pip-header {
+    margin-bottom: 0.2rem;
+}
+
+.pip-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #ff6b35;
+    text-transform: uppercase;
+}
+
+.pip-time {
+    font-size: 2.8rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    color: inherit;
+    margin-bottom: 0.4rem;
+}
+
+.pip-controls {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.pip-btn {
+    border: none;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(245, 245, 247, 0.6);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body[data-theme="light"] .pip-btn {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: rgba(26, 26, 46, 0.6);
+}
+
+.pip-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f5f5f7;
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+body[data-theme="light"] .pip-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: #1a1a2e;
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+.pip-btn:active {
+    transform: scale(0.95);
+}
+
+.pip-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* --- Focus Mode Styles --- */
+body.focus-mode-active .header {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+body.focus-mode-active .stats-bar {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+body.focus-mode-active .task-drawer {
+    display: none !important;
+}
+
+body.focus-mode-active .timer-section {
+    max-width: 100%;
+    height: 100vh;
+    justify-content: center;
+    padding: 0;
+}
+
+/* Exit button */
+.btn-exit-focus {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.15;
+    z-index: 1000;
+    transition: all 0.3s var(--ease-out);
+}
+
+.btn-exit-focus:hover {
+    opacity: 1;
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    transform: scale(1.05);
+}
+
+.btn-exit-focus:active {
+    transform: scale(0.95);
+}
+
+.btn-exit-focus svg {
+    width: 20px;
+    height: 20px;
 }
