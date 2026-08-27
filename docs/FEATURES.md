@@ -57,8 +57,13 @@
 ## 8. Persistence
 - All app data (tasks, settings, theme, presumably session stats) is saved automatically to `localStorage` — no explicit "save" action required from the user.
 
----
+## 9. Pop-out Floating Timer (Picture-in-Picture)
+- Spawns a native always-on-top window showing the countdown timer, mode label, and basic controls (Play/Pause, Skip).
+- Allows layering the timer over other applications (like VS Code or other browser windows).
+- Built using the Document Picture-in-Picture API, with a Canvas-to-video stream fallback for unsupported browsers (Safari/Firefox).
 
-## Planned / Proposed Features (not yet built)
+## 10. PWA Installation Support
+- Enables installability as a standalone desktop app on Windows/macOS.
+- Implements service worker caching to support offline functionality.
 
 See [PRD.md](./PRD.md) §5 for the official roadmap. See [DECISIONS.md](./DECISIONS.md) for additional proposed ideas (export/import, tab title updates, task notes, focus mode, etc.) and their rationale.

@@ -16,7 +16,8 @@
 | Markup | Plain HTML | Single `index.html`, with modal markup for Settings |
 | Styling | Plain CSS | Custom design system, dark/light themes, no CSS framework |
 | Audio | Web Audio API | Used for notification sounds, no external audio files/libraries |
-| Persistence | `localStorage` | No backend; all tasks, settings, and theme preference persist client-side |
+| Persistence | `localStorage` + Service Worker Cache | PWA manifest and caching enables offline functionality |
+| Overlays | Document Picture-in-Picture / Canvas Video | Native always-on-top window overlay for the timer, fallback for Safari/Firefox |
 | Fonts | Inter (UI), JetBrains Mono (timer digits) | |
 | Dev server | Any static server (Python `http.server`, `npx serve`, VS Code Live Server) | Required only because ES Modules need to be served over HTTP, not `file://` |
 
@@ -28,10 +29,14 @@
 
 ```
 ├── index.html          Main HTML (layout, modals)
+├── manifest.json       PWA configurations (app branding, icons)
+├── sw.js               PWA Service worker for asset caching & offline capability
+├── icons/
+│   └── icon.svg        FocusFlow app launcher icon (vector SVG format)
 ├── css/
-│   └── style.css       All styles (design system, components, responsive)
+│   └── style.css       All styles (design system, components, responsive, PiP styles)
 ├── js/
-│   ├── app.js          Main orchestrator (imports modules, binds events, renders UI)
+│   ├── app.js          Main orchestrator (imports modules, binds events, handles pop-out window, registers sw)
 │   ├── timer.js        Pomodoro timer logic (start, pause, reset, complete)
 │   ├── tasks.js        Task CRUD, filtering, active task management
 │   ├── settings.js     Settings modal (open, close, save, form binding)
