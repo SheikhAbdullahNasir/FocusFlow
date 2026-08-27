@@ -393,10 +393,20 @@ async function togglePopOut() {
             pipBody.className = 'pip-body';
             pipBody.setAttribute('data-theme', getTheme());
 
-            const link = pipWindow.document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = 'css/style.css';
-            pipWindow.document.head.appendChild(link);
+            // Copy all styles from the main window to the PiP window to work offline without the Python server running
+            [...document.styleSheets].forEach((styleSheet) => {
+                try {
+                    const cssRules = [...styleSheet.cssRules].map((rule) => rule.cssText).join('');
+                    const style = pipWindow.document.createElement('style');
+                    style.textContent = cssRules;
+                    pipWindow.document.head.appendChild(style);
+                } catch (e) {
+                    const link = pipWindow.document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = styleSheet.href;
+                    pipWindow.document.head.appendChild(link);
+                }
+            });
 
             pipBody.innerHTML = `
                 <div class="pip-container">
