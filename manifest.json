@@ -1,0 +1,18 @@
+{
+  "short_name": "FocusFlow",
+  "name": "FocusFlow — Pomodoro Timer & Tasks",
+  "description": "A sleek, minimal Pomodoro timer to boost your productivity.",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#0a0a0f",
+  "theme_color": "#ff6b35",
+  "display": "standalone",
+  "orientation": "any"
+}
