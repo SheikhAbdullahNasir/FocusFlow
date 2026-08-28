@@ -63,14 +63,16 @@ FocusFlow's core hypothesis: a **fast, distraction-free, single-page tool** that
 
 ## 5. Roadmap
 
+- [x] Data export/import (JSON backup)
+- [x] PWA support (offline, installable)
+- [x] Pop-out Floating Timer (PiP)
+- [x] Minimalist Focus Mode
 - [ ] Ambient sounds (rain, forest, coffee shop, white noise)
-- [ ] Data export/import (JSON backup)
-- [ ] PWA support (offline, installable)
 - [ ] User authentication & cloud sync
 - [ ] Analytics dashboard
 - [ ] Team/workspace features
 
-See [DECISIONS.md](./DECISIONS.md) for prioritization notes on this roadmap (e.g. why data export/import should likely move up).
+See [DECISIONS.md](./DECISIONS.md) for prioritization notes on this roadmap.
 
 ---
 

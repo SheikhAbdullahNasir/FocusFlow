@@ -42,9 +42,10 @@
 | `R` | Reset timer |
 | `S` | Skip session |
 | `T` | Toggle task drawer |
+| `F` / `f` | Toggle Minimalist Focus Mode |
 | `1` `2` `3` | Switch mode (Focus / Short Break / Long Break) |
 | `?` | Open settings & shortcuts |
-| `Escape` | Close settings modal |
+| `Escape` | Exit Focus Mode / Close settings modal |
 
 ## 6. Session Tracking / Stats
 - Visual session dots (progress through the cycle before a long break).
@@ -66,4 +67,16 @@
 - Enables installability as a standalone desktop app on Windows/macOS.
 - Implements service worker caching to support offline functionality.
 
-See [PRD.md](./PRD.md) §5 for the official roadmap. See [DECISIONS.md](./DECISIONS.md) for additional proposed ideas (export/import, tab title updates, task notes, focus mode, etc.) and their rationale.
+## 11. Minimalist Focus Mode
+- Full screen layout that slides out the top header, the bottom statistics footer, collapses the task list, and expands the timer widget.
+- Highly useful for removing distractions during intense work blocks.
+
+## 12. Backup & Restore (Import/Export)
+- Export button that packages tasks, configurations, and session records into a single JSON file.
+- Import selector that loads local backup files to easily restore state.
+
+## 13. Push Notifications & Action Toasts
+- Employs the browser Notifications API to trigger desktop alerts when a Pomodoro focus or break block is finished.
+- Introduces toast popups allowing users to undo unintended task completions or deletions.
+
+See [PRD.md](./PRD.md) §5 for the official roadmap. See [DECISIONS.md](./DECISIONS.md) for additional proposed ideas and their rationale.

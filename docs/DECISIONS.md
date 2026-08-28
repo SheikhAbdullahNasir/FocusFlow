@@ -17,6 +17,10 @@
 | `storage.js` is the only module allowed to touch `localStorage` | Creates a clean seam for a future swap to API calls, without a full rewrite |
 | Dark mode as default theme | Design preference, matches most modern Pomodoro app conventions |
 | No build tooling/bundler for now | Keeps the project simple to run and modify; revisit only if a concrete need arises |
+| Switch timer from tick-interval counter to timestamp elapsed comparison | Solves timer drifting when browser tabs are backgrounded or laptop is suspended |
+| Implement local state backup/import settings | Insures user data against accidental browser storage wipes |
+| Add browser Push Notifications and Undo action toasts | Improves notifications when tab is out of focus, and adds a completion/deletion safety net |
+| Design a distraction-free Minimalist Focus Mode | Minimizes visual clutter for users who want absolute screen concentration |
 
 ---
 
@@ -25,11 +29,11 @@
 Proposals, not commitments — for consideration as the project matures.
 
 ### Quick wins before SaaS (still local-first)
-- **Data export/import is more urgent than its roadmap position suggests.** Since `localStorage` is the only data store, one accidental "clear browsing data" wipes everything. A simple "Export JSON" / "Import JSON" button is a few hours of work and is real insurance for a tool used daily. Recommend bumping this above ambient sounds and PWA support.
-- **Idle/backgrounded-tab accuracy — confirmed real gap, not hypothetical.** `timer.js` currently uses a plain `setInterval` tick-counter (`state.timeLeft--` every 1000ms). Fix: switch to timestamp-based elapsed time (store a `startedAt` timestamp and compute `timeLeft` from `Date.now() - startedAt` on each tick), so the countdown stays accurate if the tab is backgrounded or the laptop sleeps.
+- ~~**Data export/import is more urgent than its roadmap position suggests.**~~ **Shipped.** Added JSON backup and restore configuration settings.
+- ~~**Idle/backgrounded-tab accuracy — confirmed real gap, not hypothetical.**~~ **Shipped.** Switch to timestamp-based elapsed calculation.
 - **Daily/weekly stats history**, not just "today." Even before a full analytics dashboard, storing a per-day summary (sessions, focus minutes) in `localStorage` gives streaks and trends for free later.
-- **"Undo" for task completion/deletion.** Small UX safety net, cheap to build, prevents data-loss frustration.
-- **Notification via the Notifications API** (in addition to sound) for when the tab isn't focused — useful since Pomodoro users often tab away during breaks.
+- ~~**"Undo" for task completion/deletion.**~~ **Shipped.** Toast system allows immediate reversion.
+- ~~**Notification via the Notifications API**~~ **Shipped.** Browser alerts trigger on session end.
 
 ### Architecture decisions that pay off later (for the SaaS transition)
 - **Design `storage.js` functions as if already async**, even though `localStorage` itself is synchronous — e.g. `saveData()`/`loadData()`/`saveSettings()`/`loadSettings()` could return Promises now. That way, swapping the internals for `fetch` calls later won't require touching every caller.
@@ -41,14 +45,14 @@ Proposals, not commitments — for consideration as the project matures.
 - **Task-level notes/subtasks** — even a single free-text notes field per task adds a lot of value for context-switching.
 - **Recurring/daily tasks** — some Pomodoro users have standing daily tasks (e.g., "inbox zero," "deep work block") that shouldn't need to be re-added each day.
 - **Focus session tagging/categories** (e.g., "deep work," "admin," "learning") to make the eventual analytics dashboard meaningfully segmented rather than just a single number.
-- **A minimal "focus mode" view** — hide everything but the timer and active task, useful for users who want zero visual noise during a session.
+- ~~**A minimal "focus mode" view**~~ **Shipped.** Toggles a distraction-free layout (hotkey `F`).
 - ~~Browser tab title updates~~ — **already shipped.** `app.js`'s `updateTitle()` sets `document.title` to `🍅 MM:SS — FocusFlow` while the timer is running.
 
 ---
 
 ## Open Questions
 
-- ~~Does `tasks.js` support task filtering?~~ **Resolved** — yes, `getFiltered()`/`setFilter()` support `all`/`active`/`completed`. Note: the filter choice is **not persisted** across reloads.
+- ~~Is timer accuracy under tab-throttling already handled, or a known gap?~~ **Resolved** — Switch to timestamp-based elapsed calculations.
 - ~~Is there already a defined data schema in `storage.js`?~~ **Resolved** — `storage.js`, `tasks.js`, `timer.js`, and `app.js` are all confirmed now (see ARCHITECTURE.md §5). Full data model is verified end to end.
 - ~~Where do session/focus-time stats actually live?~~ **Resolved** — `sessionsCompleted`/`totalFocusMinutes` live in `timer.js`'s internal state, persisted via `app.js`'s `persist()`.
 - ~~Is timer accuracy under tab-throttling already handled, or a known gap?~~ **Resolved — it's a known gap.** See the `setInterval` vs. timestamp-based note in DECISIONS.md's suggestions and ARCHITECTURE.md §6.

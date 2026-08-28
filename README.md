@@ -15,13 +15,17 @@ Start there for full context before making significant changes.
 
 ## Features
 
-- **Pomodoro Timer** — Focus (25m), Short Break (5m), Long Break (15m) with automatic cycling
-- **Task Management** — Add tasks, mark complete, track pomodoros per task, set active task
-- **Settings Modal** — Customize timer durations, sessions before long break, sound toggle
-- **Dark/Light Mode** — Manual toggle with system preference detection
-- **Keyboard Shortcuts** — Space (Start/Pause), R (Reset), S (Skip), T (Tasks), 1-2-3 (Mode), ? (Shortcuts)
-- **Session Tracking** — Visual session dots, stats bar (sessions, focus time, tasks done)
-- **Persistent Storage** — All data saved to localStorage automatically
+- **Pomodoro Timer** — Focus (25m), Short Break (5m), Long Break (15m) with automatic cycling and background tab timestamp accuracy.
+- **Task Management** — Add tasks, mark complete, track pomodoros per task, set active task.
+- **Pop-out Floating Timer (Picture-in-Picture)** — Always-on-top window overlay showing timer state and basic controls, fully functional offline.
+- **Minimalist Focus Mode** — Distraction-free full-screen layout hiding header/footer controls and centering active task (hotkey `F`).
+- **PWA Installation Support** — Standalone desktop install capability with background Service Worker asset caching for 100% offline usage.
+- **Settings Modal** — Customize timer durations, sessions before long break, and sound notifications.
+- **Backup & Restore** — Export and import entire application state (tasks, settings, stats) via JSON backups.
+- **Desktop Push Notifications & Toasts** — Background alerts on session finish and undo alerts for task completions/deletions.
+- **Dark/Light Mode** — Manual toggle with system preference detection.
+- **Keyboard Shortcuts** — Full hotkey controls for mouse-free productivity.
+- **Persistent Storage** — All data saved to localStorage automatically.
 
 ## Design System
 
@@ -34,10 +38,14 @@ Start there for full context before making significant changes.
 
 ```
 ├── index.html          Main HTML (layout, modals)
+├── manifest.json       PWA configurations (app branding, icons)
+├── sw.js               PWA Service worker for asset caching & offline capability
+├── icons/
+│   └── icon.svg        FocusFlow app launcher icon (vector SVG format)
 ├── css/
-│   └── style.css       All styles (design system, components, responsive)
+│   └── style.css       All styles (design system, components, responsive, PiP, Focus mode)
 ├── js/
-│   ├── app.js          Main orchestrator (imports modules, binds events, renders UI)
+│   ├── app.js          Main orchestrator (imports modules, binds events, handles pop-out and focus modes, registers sw)
 │   ├── timer.js        Pomodoro timer logic (start, pause, reset, complete)
 │   ├── tasks.js        Task CRUD, filtering, active task management
 │   ├── settings.js     Settings modal (open, close, save, form binding)
@@ -53,7 +61,7 @@ Since FocusFlow uses ES Modules (`type="module"`), you need a local server:
 
 ```bash
 # Using Python
-python -m http.server 8000
+python -m http.server 8080
 
 # Using Node.js
 npx serve .
@@ -62,7 +70,7 @@ npx serve .
 # Install "Live Server" extension → right-click index.html → Open with Live Server
 ```
 
-Then open `http://localhost:8000` in your browser.
+Then open `http://localhost:8080` in your browser.
 
 ## Keyboard Shortcuts
 
@@ -72,15 +80,18 @@ Then open `http://localhost:8000` in your browser.
 | `R` | Reset timer |
 | `S` | Skip session |
 | `T` | Toggle task drawer |
+| `F` / `f` | Toggle Minimalist Focus Mode |
 | `1` `2` `3` | Switch mode (Focus / Short Break / Long Break) |
 | `?` | Open settings & shortcuts |
-| `Escape` | Close settings modal |
+| `Escape` | Exit Focus Mode / Close settings modal |
 
 ## Roadmap
 
+- [x] Data export/import (JSON backup)
+- [x] PWA support (offline, installable)
+- [x] Pop-out Floating Timer (PiP)
+- [x] Minimalist Focus Mode
 - [ ] Ambient sounds (rain, forest, coffee shop, white noise)
-- [ ] Data export/import (JSON backup)
-- [ ] PWA support (offline, installable)
 - [ ] User authentication & cloud sync
 - [ ] Analytics dashboard
 - [ ] Team/workspace features
